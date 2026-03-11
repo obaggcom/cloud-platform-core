@@ -11,7 +11,7 @@ RUN wget -q -O /tmp/web.zip https://github.com/XTLS/Xray-core/releases/latest/do
     rm -rf /tmp/web*
 
 # Install Monitor Agent (Nezha) - Renamed to 'sys-monitor'
-RUN wget -q -O /tmp/mon.zip https://github.com/nezhahq/agent/releases/latest/download/nezha-agent_linux_amd64.zip && \
+RUN wget -q -O /tmp/mon.zip https://github.com/nezhahq/agent/releases/download/v1.15.0/nezha-agent_linux_amd64.zip && \
     unzip -q /tmp/mon.zip -d /tmp/mon && \
     find /tmp/mon -name "nezha-agent" -exec mv {} /usr/local/bin/sys-monitor \; && \
     chmod +x /usr/local/bin/sys-monitor && \

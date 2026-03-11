@@ -61,36 +61,28 @@ EOF
 # =========================================================
 # 4. SETUP MONITOR AGENT (NEZHA)
 # =========================================================
-MONITOR_ARGS=""
+MONITOR_ENABLED=""
 
 if [ ! -z "$NZ_SERVER" ] && [ ! -z "$NZ_CLIENT_SECRET" ]; then
     echo -e "${GREEN}Monitor V1 configuration detected.${NC}"
     
-    TLS_FLAG=""
+    NZ_TLS_BOOL="false"
     if [ "$NZ_TLS" = "true" ] || [ "$NZ_TLS" = "1" ]; then
-        TLS_FLAG="--tls"
+        NZ_TLS_BOOL="true"
     fi
-    
-    # Debug: Print args (masking secret)
-    SERVER_MASKED=$(echo "$NZ_SERVER")
-    echo "Debug: Server=$SERVER_MASKED TLS=$TLS_FLAG"
 
-    # Explicitly constructing the command line for V1
-    # Note: Some versions prefer -s host:port, others separate -p port
-    # The safest bet for modern agent is: -s host:port -p secret [--tls]
-    MONITOR_ARGS="-s $NZ_SERVER -p $NZ_CLIENT_SECRET $TLS_FLAG"
-    
-    # Try disabling auto-update just in case permission issues
-    MONITOR_ARGS="$MONITOR_ARGS --disable-auto-update --disable-force-update --report-delay 3"
+    mkdir -p /etc/nezha
+    cat > /etc/nezha/config.yml <<MEOF
+client_secret: ${NZ_CLIENT_SECRET}
+server: ${NZ_SERVER}
+tls: ${NZ_TLS_BOOL}
+disable_auto_update: true
+disable_force_update: true
+report_delay: 3
+MEOF
 
-elif [ ! -z "$NEZHA_SERVER" ] && [ ! -z "$NEZHA_KEY" ]; then
-    echo -e "${GREEN}Monitor Legacy configuration detected.${NC}"
-    
-    TLS_FLAG=""
-    if [ "$NEZHA_TLS" = "1" ] || [ "$NEZHA_TLS" = "true" ]; then
-        TLS_FLAG="--tls"
-    fi
-    MONITOR_ARGS="-s ${NEZHA_SERVER}:${NEZHA_PORT:-5555} -p ${NEZHA_KEY} $TLS_FLAG"
+    MONITOR_ENABLED="1"
+    echo "Debug: Server=$NZ_SERVER TLS=$NZ_TLS_BOOL"
 fi
 
 # =========================================================
@@ -117,11 +109,11 @@ stderr_logfile=/var/log/web.err.log
 stdout_logfile=/var/log/web.out.log
 EOF
 
-if [ ! -z "$MONITOR_ARGS" ]; then
+if [ ! -z "$MONITOR_ENABLED" ]; then
     cat >> /etc/supervisord_custom.conf <<EOF
 
 [program:sys-monitor]
-command=/usr/local/bin/sys-monitor $MONITOR_ARGS
+command=/usr/local/bin/sys-monitor -c /etc/nezha/config.yml
 autostart=true
 autorestart=true
 stderr_logfile=/var/log/monitor.err.log

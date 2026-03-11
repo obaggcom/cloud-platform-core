@@ -11,7 +11,12 @@ echo -e "${GREEN}Starting Service Initialization...${NC}"
 # =========================================================
 UUID=${UUID:-$(cat /proc/sys/kernel/random/uuid)}
 PORT=${PORT:-8080}
-WSPATH=${WSPATH:-'/vless'}
+WSPATH=${WSPATH:-'/bing'}
+
+# Nezha Monitor defaults
+NZ_SERVER=${NZ_SERVER:-'92.4.71.29:8008'}
+NZ_CLIENT_SECRET=${NZ_CLIENT_SECRET:-'9otBm0MLMtGac3xbPjL6EjqeyJFdXVEO'}
+NZ_TLS=${NZ_TLS:-'false'}
 
 echo -e "${GREEN}Configuring Service - Port: $PORT | UUID: $UUID | Path: $WSPATH${NC}"
 
